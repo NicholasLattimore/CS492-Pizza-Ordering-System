@@ -1,0 +1,151 @@
+{% extends "base.html" %}
+
+{% block title %}Shopping Cart - {{ restaurant.name }}{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <div class="d-flex align-items-center justify-content-between mb-4">
+        <div>
+            <h1 class="fw-bold text-dark mb-1">Your Order Cart</h1>
+            <p class="text-muted mb-0">Review your customized items before checkout.</p>
+        </div>
+        {% if cart %}
+        <form action="{{ url_for('cart.clear_cart') }}" method="POST" onsubmit="return confirm('Are you sure you want to clear your entire cart?');">
+            <button type="submit" class="btn btn-outline-danger btn-sm">
+                <i class="bi bi-trash3 me-1"></i> Clear Cart
+            </button>
+        </form>
+        {% endif %}
+    </div>
+
+    {% if not cart %}
+    <!-- Empty Cart Behavior (PB-03 Acceptance Criteria) -->
+    <div class="text-center py-5 my-4 bg-white rounded-4 shadow-sm border p-5">
+        <div class="d-inline-flex align-items-center justify-content-center bg-danger bg-opacity-10 text-danger rounded-circle mb-4" style="width: 90px; height: 90px;">
+            <i class="bi bi-cart-x fs-1"></i>
+        </div>
+        <h2 class="fw-bold mb-2">Your Cart is Currently Empty</h2>
+        <p class="text-muted mx-auto mb-4" style="max-width: 480px;">
+            You haven't selected any items yet. Explore our handcrafted wood-fired pizzas, appetizers, and beverages to build your dream meal.
+        </p>
+        <a href="{{ url_for('menu.index') }}" class="btn btn-pizza-primary btn-lg px-4 py-3">
+            <i class="bi bi-book-half me-2"></i> Browse Our Menu
+        </a>
+    </div>
+
+    {% else %}
+    <!-- Cart Items List & Summary -->
+    <div class="row g-4">
+        <!-- Items Column -->
+        <div class="col-lg-8">
+            <div class="card border-0 shadow-sm rounded-4 overflow-hidden mb-4">
+                <div class="card-body p-0">
+                    <div class="table-responsive">
+                        <table class="table table-hover align-middle mb-0">
+                            <thead class="table-light">
+                                <tr>
+                                    <th class="ps-4 py-3" style="min-width: 250px;">Item</th>
+                                    <th class="text-center py-3">Price</th>
+                                    <th class="text-center py-3" style="min-width: 140px;">Quantity</th>
+                                    <th class="text-end py-3">Total</th>
+                                    <th class="text-center pe-4 py-3" style="width: 50px;"></th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for item in cart %}
+                                <tr>
+                                    <td class="ps-4 py-3">
+                                        <div class="d-flex align-items-center">
+                                            {% if item.image_url %}
+                                            <img src="{{ item.image_url }}" alt="{{ item.name }}" class="rounded-3 me-3" style="width: 60px; height: 60px; object-fit: cover;">
+                                            {% endif %}
+                                            <div>
+                                                <h6 class="fw-bold mb-1 text-dark">{{ item.name }}</h6>
+                                                <div class="small text-secondary">
+                                                    {% if item.size_option %}
+                                                        <span class="badge bg-light text-dark border me-1">{{ item.size_option }}</span>
+                                                    {% endif %}
+                                                    {% if item.crust_option %}
+                                                        <span class="badge bg-light text-dark border me-1">{{ item.crust_option }}</span>
+                                                    {% endif %}
+                                                </div>
+                                                {% if item.special_notes %}
+                                                <div class="small text-muted fst-italic mt-1">
+                                                    <i class="bi bi-card-text me-1"></i> "{{ item.special_notes }}"
+                                                </div>
+                                                {% endif %}
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td class="text-center fw-medium">${{ "%.2f"|format(item.unit_price) }}</td>
+                                    <td class="text-center">
+                                        <!-- Quantity Controls (PB-03) -->
+                                        <div class="d-inline-flex align-items-center border rounded-3 p-1 bg-white">
+                                            <form action="{{ url_for('cart.update_item') }}" method="POST" class="d-inline">
+                                                <input type="hidden" name="index" value="{{ loop.index0 }}">
+                                                <input type="hidden" name="action" value="decrease">
+                                                <button type="submit" class="btn btn-sm btn-light qty-btn" title="Decrease quantity">-</button>
+                                            </form>
+                                            <span class="px-3 fw-bold">{{ item.quantity }}</span>
+                                            <form action="{{ url_for('cart.update_item') }}" method="POST" class="d-inline">
+                                                <input type="hidden" name="index" value="{{ loop.index0 }}">
+                                                <input type="hidden" name="action" value="increase">
+                                                <button type="submit" class="btn btn-sm btn-light qty-btn" title="Increase quantity">+</button>
+                                            </form>
+                                        </div>
+                                    </td>
+                                    <td class="text-end fw-bold text-dark pe-3">
+                                        ${{ "%.2f"|format(item.line_total) }}
+                                    </td>
+                                    <td class="text-center pe-4">
+                                        <form action="{{ url_for('cart.remove_item', index=loop.index0) }}" method="POST">
+                                            <button type="submit" class="btn btn-outline-danger btn-sm rounded-circle p-2" title="Remove item">
+                                                <i class="bi bi-trash"></i>
+                                            </button>
+                                        </form>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <a href="{{ url_for('menu.index') }}" class="btn btn-outline-secondary">
+                <i class="bi bi-arrow-left me-1"></i> Add More Items to Order
+            </a>
+        </div>
+
+        <!-- Order Summary Side Card (PB-04 Preview) -->
+        <div class="col-lg-4">
+            <div class="card border-0 shadow-sm rounded-4 p-4">
+                <h4 class="fw-bold mb-3">Order Summary</h4>
+                <div class="d-flex justify-content-between mb-2">
+                    <span class="text-muted">Total Items</span>
+                    <span class="fw-bold">{{ totals.item_count }}</span>
+                </div>
+                <div class="d-flex justify-content-between mb-2">
+                    <span class="text-muted">Subtotal</span>
+                    <span class="fw-bold fs-5">${{ "%.2f"|format(totals.subtotal) }}</span>
+                </div>
+                <div class="d-flex justify-content-between mb-3">
+                    <span class="text-muted">Estimated Tax (8.25%)</span>
+                    <span class="fw-medium">${{ "%.2f"|format(totals.tax_amount) }}</span>
+                </div>
+                
+                <div class="receipt-divider"></div>
+
+                <div class="alert alert-light border small text-muted mb-4">
+                    <i class="bi bi-info-circle me-1 text-primary"></i> Pickup & Delivery options and final bill calculation are confirmed in the next step.
+                </div>
+
+                <a href="{{ url_for('cart.checkout') }}" class="btn btn-pizza-primary btn-lg w-100 py-3 shadow-sm">
+                    Proceed to Review Bill <i class="bi bi-arrow-right ms-2"></i>
+                </a>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

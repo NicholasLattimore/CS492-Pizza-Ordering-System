@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Bella Napoli Pizzeria{% endblock %} | Artisan Pizza</title>
+    <!-- Bootstrap 5.3 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Bootstrap Icons -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+    <!-- Custom Style -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    {% block extra_css %}{% endblock %}
+</head>
+<body>
+    <!-- Navigation Bar -->
+    <nav class="navbar navbar-expand-lg navbar-light bg-white border-bottom sticky-top py-3">
+        <div class="container">
+            <a class="navbar-brand navbar-brand-custom d-flex align-items-center" href="{{ url_for('main.index') }}">
+                <i class="bi bi-fire text-danger me-2 fs-3"></i>
+                <span>Bella Napoli</span>
+            </a>
+            <button class="navbar-toggler border-0" type="button" data-bs-toggle="collapse" data-bs-target="#navbarMain">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarMain">
+                <ul class="navbar-nav me-auto mb-2 mb-lg-0 ms-lg-4">
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('main.index') }}"><i class="bi bi-house-door me-1"></i> Home</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('menu.index') }}"><i class="bi bi-card-list me-1"></i> Browse Menu</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('main.index') }}#about"><i class="bi bi-info-circle me-1"></i> About Us</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('main.index') }}#hours-location"><i class="bi bi-geo-alt me-1"></i> Hours & Location</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('staff.orders') }}"><i class="bi bi-shield-lock me-1"></i> Staff Portal</a>
+                    </li>
+                </ul>
+                <div class="d-flex align-items-center gap-2">
+                    <a href="{{ url_for('cart.index') }}" class="btn btn-pizza-outline d-flex align-items-center position-relative">
+                        <i class="bi bi-cart3 me-2 fs-5"></i>
+                        <span>Cart</span>
+                        {% if cart_count > 0 %}
+                        <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
+                            {{ cart_count }}
+                        </span>
+                        {% endif %}
+                    </a>
+                    <a href="{{ url_for('menu.index') }}" class="btn btn-pizza-primary d-none d-sm-inline-block">
+                        Order Now
+                    </a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Flash Messages -->
+    <div class="container mt-3">
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="alert alert-{{ category if category != 'error' else 'danger' }} alert-dismissible fade show shadow-sm" role="alert">
+                        <i class="bi bi-info-circle-fill me-2"></i> {{ message }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                    </div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+    </div>
+
+    <!-- Main Content Block -->
+    <main>
+        {% block content %}{% endblock %}
+    </main>
+
+    <!-- Footer (PB-01 info persistent across pages) -->
+    <footer>
+        <div class="container">
+            <div class="row g-4 mb-4">
+                <div class="col-lg-4 col-md-6">
+                    <h5 class="text-white fw-bold d-flex align-items-center mb-3">
+                        <i class="bi bi-fire text-danger me-2"></i> {{ restaurant.name }}
+                    </h5>
+                    <p class="small text-secondary mb-3">{{ restaurant.tagline }}</p>
+                    <p class="small mb-1"><i class="bi bi-geo-alt-fill text-warning me-2"></i>{{ restaurant.address }}</p>
+                    <p class="small mb-1"><i class="bi bi-telephone-fill text-warning me-2"></i><a href="tel:{{ restaurant.phone }}">{{ restaurant.phone }}</a></p>
+                    <p class="small"><i class="bi bi-envelope-fill text-warning me-2"></i><a href="mailto:{{ restaurant.email }}">{{ restaurant.email }}</a></p>
+                </div>
+                <div class="col-lg-4 col-md-6">
+                    <h5 class="text-white fw-bold mb-3"><i class="bi bi-clock-fill text-warning me-2"></i>Hours of Operation</h5>
+                    <ul class="list-unstyled small">
+                        {% for h in restaurant.hours %}
+                        <li class="d-flex justify-content-between py-1 border-bottom border-secondary border-opacity-25">
+                            <span>{{ h.days }}</span>
+                            <span class="text-light fw-medium">{{ h.time }}</span>
+                        </li>
+                        {% endfor %}
+                    </ul>
+                </div>
+                <div class="col-lg-4 col-md-12">
+                    <h5 class="text-white fw-bold mb-3">CS492 Capstone Project</h5>
+                    <p class="small text-secondary">
+                        Pizza Restaurant Online Ordering System developed for CS492 Capstone under Prof. Fadi Almasri.
+                    </p>
+                    <div class="small text-secondary mt-3">
+                        <strong>Sprint 1 Delivery:</strong> PB-01 Restaurant Info, PB-02 Menu Browsing, PB-03 Cart Builder, PB-04 Bill Calculation, PB-05 Order Submission.
+                    </div>
+                </div>
+            </div>
+            <div class="border-top border-secondary border-opacity-25 pt-3 text-center small text-secondary">
+                &copy; 2026 {{ restaurant.name }}. All rights reserved. Team: Michael Fabacher, Kellen Jones, Ayden Lotter, Nicholas Lattimore.
+            </div>
+        </div>
+    </footer>
+
+    <!-- Bootstrap Bundle JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="{{ url_for('static', filename='js/cart.js') }}"></script>
+    {% block extra_js %}{% endblock %}
+</body>
+</html>

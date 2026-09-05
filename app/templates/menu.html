@@ -1,0 +1,104 @@
+{% extends "base.html" %}
+
+{% block title %}Menu - {{ restaurant.name }}{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <!-- Header Banner -->
+    <div class="text-center mb-5">
+        <span class="text-danger fw-bold text-uppercase small letter-spacing-1">Made Fresh Daily</span>
+        <h1 class="display-5 fw-bold text-dark mb-2">Our Artisan Menu</h1>
+        <p class="text-muted mx-auto" style="max-width: 600px;">
+            Explore handcrafted wood-fired pizzas, delicious starters, crisp beverages, and decadent Italian desserts. Customize any pizza to your taste!
+        </p>
+
+        <!-- Category Filter Navigation -->
+        <div class="d-flex justify-content-center flex-wrap gap-2 mt-4 category-nav-pills">
+            {% for cat in categories %}
+            <a href="#cat-{{ cat.slug }}" class="nav-link text-decoration-none">
+                {{ cat.name }}
+            </a>
+            {% endfor %}
+        </div>
+    </div>
+
+    <!-- Grouped Menu Categories (PB-02) -->
+    {% for group in menu_by_category %}
+    <section id="cat-{{ group.category.slug }}" class="mb-5 pt-3">
+        <div class="border-bottom pb-2 mb-4 d-flex justify-content-between align-items-end">
+            <div>
+                <h2 class="fw-bold text-dark mb-1">{{ group.category.name }}</h2>
+                {% if group.category.description %}
+                <p class="text-muted small mb-0">{{ group.category.description }}</p>
+                {% endif %}
+            </div>
+            <span class="badge bg-light text-secondary border px-3 py-2 rounded-pill">
+                {{ group.menu_items|length }} items
+            </span>
+        </div>
+
+        <div class="row g-4">
+            {% for item in group.menu_items %}
+            <div class="col-lg-4 col-md-6">
+                <div class="card custom-card h-100 {% if not item.is_available %}opacity-75 bg-light{% endif %}">
+                    <div class="position-relative">
+                        <img src="{{ item.image_url }}" class="card-img-top-fixed" alt="{{ item.name }}" loading="lazy">
+                        {% if not item.is_available %}
+                        <div class="position-absolute top-0 end-0 m-3">
+                            <span class="badge badge-sold-out px-3 py-2 shadow-sm">
+                                <i class="bi bi-x-circle-fill me-1"></i> Sold Out
+                            </span>
+                        </div>
+                        {% endif %}
+                    </div>
+                    <div class="card-body d-flex flex-column p-4">
+                        <div class="d-flex justify-content-between align-items-start mb-2">
+                            <h5 class="card-title fw-bold text-dark mb-0">{{ item.name }}</h5>
+                            <span class="price-tag ms-2">${{ "%.2f"|format(item.base_price) }}</span>
+                        </div>
+                        
+                        <p class="card-text text-muted small flex-grow-1">{{ item.description }}</p>
+
+                        <!-- Available Options summary (PB-02) -->
+                        {% set options = item.get_options() %}
+                        {% if options.sizes or options.crusts %}
+                        <div class="bg-light rounded p-2 mb-3 small">
+                            {% if options.sizes %}
+                            <div class="text-secondary">
+                                <strong>Sizes:</strong> 
+                                {{ options.sizes | map(attribute='name') | join(', ') }}
+                            </div>
+                            {% endif %}
+                            {% if options.crusts %}
+                            <div class="text-secondary mt-1">
+                                <strong>Crusts:</strong> 
+                                {{ options.crusts | map(attribute='name') | join(', ') }}
+                            </div>
+                            {% endif %}
+                        </div>
+                        {% endif %}
+
+                        <div class="mt-auto">
+                            {% if item.is_available %}
+                            <button class="btn btn-pizza-primary w-100 btn-customize-item" data-item-id="{{ item.id }}">
+                                <i class="bi bi-plus-circle me-1"></i> Customize & Order
+                            </button>
+                            {% else %}
+                            <button class="btn btn-secondary w-100 disabled" disabled>
+                                Currently Unavailable
+                            </button>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </section>
+    {% endfor %}
+</div>
+
+<!-- Reusable Customization Modal -->
+{% include "partials/_modal_customize.html" %}
+
+{% endblock %}

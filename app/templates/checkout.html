@@ -1,0 +1,166 @@
+{% extends "base.html" %}
+
+{% block title %}Order Review & Final Bill - {{ restaurant.name }}{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <div class="mb-4">
+        <a href="{{ url_for('cart.index') }}" class="text-decoration-none text-muted small">
+            <i class="bi bi-arrow-left me-1"></i> Back to Shopping Cart
+        </a>
+        <h1 class="fw-bold text-dark mt-1">Review Your Order & Bill</h1>
+        <p class="text-muted">Verify your itemized bill and provide your contact details to complete your order.</p>
+    </div>
+
+    <div class="row g-4">
+        <!-- Customer & Order Information Form (PB-05) -->
+        <div class="col-lg-7">
+            <div class="card border-0 shadow-sm rounded-4 p-4 mb-4">
+                <h4 class="fw-bold mb-3 d-flex align-items-center">
+                    <span class="badge bg-danger rounded-circle me-2 p-2 fs-6">1</span>
+                    Customer & Fulfillment Information
+                </h4>
+                
+                <form id="order-form" action="{{ url_for('order.submit_order') }}" method="POST">
+                    <!-- Order Type Selector (Pickup vs Delivery) -->
+                    <div class="mb-4">
+                        <label class="form-label fw-bold text-dark">Select Fulfillment Type</label>
+                        <div class="row g-3">
+                            <div class="col-sm-6">
+                                <label class="border rounded-3 p-3 w-100 d-flex align-items-center cursor-pointer shadow-sm">
+                                    <input type="radio" name="order_type" value="pickup" class="form-check-input me-3" {% if order_type == 'pickup' %}checked{% endif %}>
+                                    <div>
+                                        <div class="fw-bold text-dark"><i class="bi bi-shop me-1 text-danger"></i> In-Store Pickup</div>
+                                        <small class="text-muted">Ready in 20-25 mins • Free</small>
+                                    </div>
+                                </label>
+                            </div>
+                            <div class="col-sm-6">
+                                <label class="border rounded-3 p-3 w-100 d-flex align-items-center cursor-pointer shadow-sm">
+                                    <input type="radio" name="order_type" value="delivery" class="form-check-input me-3" {% if order_type == 'delivery' %}checked{% endif %}>
+                                    <div>
+                                        <div class="fw-bold text-dark"><i class="bi bi-bicycle me-1 text-danger"></i> Local Delivery</div>
+                                        <small class="text-muted">Delivered in 40-50 mins • $4.99</small>
+                                    </div>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Contact Details -->
+                    <div class="row g-3 mb-3">
+                        <div class="col-12">
+                            <label for="customer_name" class="form-label fw-bold">Full Name <span class="text-danger">*</span></label>
+                            <input type="text" class="form-control" id="customer_name" name="customer_name" placeholder="Jane Doe" required>
+                        </div>
+                        <div class="col-md-6">
+                            <label for="customer_email" class="form-label fw-bold">Email Address <span class="text-danger">*</span></label>
+                            <input type="email" class="form-control" id="customer_email" name="customer_email" placeholder="jane@example.com" required>
+                            <div class="form-text">We'll send your receipt and tracking updates here.</div>
+                        </div>
+                        <div class="col-md-6">
+                            <label for="customer_phone" class="form-label fw-bold">Phone Number <span class="text-danger">*</span></label>
+                            <input type="tel" class="form-control" id="customer_phone" name="customer_phone" placeholder="(555) 000-0000" required>
+                            <div class="form-text">In case our team has questions about your order.</div>
+                        </div>
+                    </div>
+
+                    <!-- Delivery Address (Conditional) -->
+                    <div class="mb-3" id="delivery-address-group" style="{% if order_type != 'delivery' %}display: none;{% endif %}">
+                        <label for="delivery_address" class="form-label fw-bold">Delivery Address <span class="text-danger">*</span></label>
+                        <input type="text" class="form-control" id="delivery_address" name="delivery_address" placeholder="123 Main St, Apt 4B, City, ZIP">
+                        <div class="form-text text-muted">Delivery available within 5 miles of our campus location.</div>
+                    </div>
+
+                    <!-- Special Instructions -->
+                    <div class="mb-4">
+                        <label for="special_instructions" class="form-label fw-bold">Order or Delivery Instructions</label>
+                        <textarea class="form-control" id="special_instructions" name="special_instructions" rows="2" placeholder="e.g. Ring doorbell, leave at front desk, paper plates requested..."></textarea>
+                    </div>
+
+                    <!-- Terms & Order Submission Note -->
+                    <div class="alert alert-light border small text-muted mb-4">
+                        <i class="bi bi-shield-check text-success me-1"></i>
+                        <strong>Sprint 1 Notice:</strong> In this sprint phase, orders are placed directly with the kitchen for on-site or upon-delivery payment (Online credit card processing unlocks in Sprint 2).
+                    </div>
+
+                    <button type="submit" class="btn btn-pizza-primary btn-lg w-100 py-3 fs-5 shadow">
+                        <i class="bi bi-check-circle me-2"></i> Confirm & Submit Order
+                    </button>
+                </form>
+            </div>
+        </div>
+
+        <!-- Itemized Final Bill Calculation & Review (PB-04) -->
+        <div class="col-lg-5">
+            <div class="receipt-box sticky-top" style="top: 90px;">
+                <h4 class="fw-bold mb-3 d-flex align-items-center">
+                    <span class="badge bg-secondary rounded-circle me-2 p-2 fs-6">2</span>
+                    Final Bill Calculation
+                </h4>
+
+                <!-- Selected Items List -->
+                <div class="mb-3">
+                    <label class="text-muted small text-uppercase fw-bold mb-2">Itemized Order</label>
+                    <div class="list-group list-group-flush mb-2">
+                        {% for item in cart %}
+                        <div class="list-group-item px-0 py-2 border-light bg-transparent">
+                            <div class="d-flex justify-content-between align-items-start">
+                                <div>
+                                    <span class="fw-bold text-dark">{{ item.quantity }}x</span>
+                                    <span class="fw-medium text-dark ms-1">{{ item.name }}</span>
+                                    <div class="small text-muted ms-3">
+                                        {% if item.size_option %}{{ item.size_option }}{% endif %}
+                                        {% if item.crust_option %} • {{ item.crust_option }}{% endif %}
+                                    </div>
+                                    {% if item.special_notes %}
+                                    <div class="small text-muted fst-italic ms-3">
+                                        Note: {{ item.special_notes }}
+                                    </div>
+                                    {% endif %}
+                                </div>
+                                <span class="fw-bold text-dark ms-2">
+                                    ${{ "%.2f"|format(item.line_total) }}
+                                </span>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+
+                <div class="receipt-divider"></div>
+
+                <!-- Calculation Rows (PB-04 Acceptance Criteria) -->
+                <div class="d-flex justify-content-between mb-2">
+                    <span class="text-muted">Subtotal</span>
+                    <span class="fw-bold text-dark" id="bill-subtotal">${{ "%.2f"|format(totals.subtotal) }}</span>
+                </div>
+
+                <div class="d-flex justify-content-between mb-2" id="delivery-fee-row" style="{% if totals.delivery_fee == 0 %}display: none;{% endif %}">
+                    <span class="text-muted">Delivery Fee</span>
+                    <span class="fw-medium text-dark" id="bill-delivery-fee">${{ "%.2f"|format(totals.delivery_fee) }}</span>
+                </div>
+
+                <div class="d-flex justify-content-between mb-2">
+                    <span class="text-muted">Estimated Tax (8.25%)</span>
+                    <span class="fw-medium text-dark" id="bill-tax">${{ "%.2f"|format(totals.tax_amount) }}</span>
+                </div>
+
+                <div class="receipt-divider"></div>
+
+                <!-- Grand Total -->
+                <div class="d-flex justify-content-between align-items-center py-2">
+                    <span class="fs-5 fw-bold text-dark">Final Total</span>
+                    <span class="fs-3 fw-bold text-danger" id="bill-total">${{ "%.2f"|format(totals.total_amount) }}</span>
+                </div>
+
+                <div class="text-center mt-3">
+                    <small class="text-muted">
+                        <i class="bi bi-clock-history me-1"></i> Live calculated price based on selections.
+                    </small>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

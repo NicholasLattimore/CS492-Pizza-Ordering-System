@@ -1,0 +1,257 @@
+{% extends "base.html" %}
+
+{% block title %}Home - {{ restaurant.name }}{% endblock %}
+
+{% block content %}
+<!-- Hero Section -->
+<section class="hero-section text-center position-relative">
+    <div class="container py-5">
+        <div class="hero-badge mb-3">
+            <i class="bi bi-award-fill me-1"></i> Authentic Neapolitan Wood-Fired Pizza
+        </div>
+        <h1 class="display-3 fw-bold mb-3 text-white">
+            Taste the Tradition of Real Pizza
+        </h1>
+        <p class="lead mb-4 mx-auto text-light opacity-90" style="max-width: 720px; font-size: 1.25rem;">
+            Handcrafted with 48-hour slow-fermented dough, San Marzano tomatoes, and baked to blistered perfection in our 800°F stone oven.
+        </p>
+        <div class="d-flex justify-content-center gap-3 flex-wrap">
+            <a href="{{ url_for('menu.index') }}" class="btn btn-pizza-primary btn-lg shadow px-4 py-3 fs-5">
+                <i class="bi bi-cart-plus me-2"></i> Order Online Now
+            </a>
+            <a href="#about" class="btn btn-outline-light btn-lg px-4 py-3 fs-5">
+                <i class="bi bi-book me-2"></i> Our Story & Hours
+            </a>
+        </div>
+    </div>
+</section>
+
+<!-- Features Highlights Row -->
+<section class="py-5 bg-white border-bottom">
+    <div class="container">
+        <div class="row g-4 text-center">
+            <div class="col-md-4">
+                <div class="p-3">
+                    <div class="d-inline-flex align-items-center justify-content-center bg-danger bg-opacity-10 text-danger rounded-circle mb-3" style="width: 64px; height: 64px;">
+                        <i class="bi bi-fire fs-2"></i>
+                    </div>
+                    <h5 class="fw-bold">Stone Wood-Fired Oven</h5>
+                    <p class="text-muted small">Our Italian stone deck reaches 800°F, creating a crispy leopard-spotted crust with an airy chew.</p>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="p-3">
+                    <div class="d-inline-flex align-items-center justify-content-center bg-warning bg-opacity-10 text-warning rounded-circle mb-3" style="width: 64px; height: 64px;">
+                        <i class="bi bi-patch-check-fill fs-2"></i>
+                    </div>
+                    <h5 class="fw-bold">Farm-Fresh Ingredients</h5>
+                    <p class="text-muted small">San Marzano D.O.P. tomatoes, fresh fior di latte mozzarella, and cold-pressed extra virgin olive oil.</p>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="p-3">
+                    <div class="d-inline-flex align-items-center justify-content-center bg-success bg-opacity-10 text-success rounded-circle mb-3" style="width: 64px; height: 64px;">
+                        <i class="bi bi-lightning-charge-fill fs-2"></i>
+                    </div>
+                    <h5 class="fw-bold">Fast Pickup & Delivery</h5>
+                    <p class="text-muted small">Order ahead online for contactless curb pickup or piping-hot local delivery directly to your door.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Featured Favorites Menu Preview -->
+<section class="py-5">
+    <div class="container">
+        <div class="d-flex justify-content-between align-items-end mb-4 flex-wrap gap-2">
+            <div>
+                <span class="text-danger fw-bold text-uppercase small letter-spacing-1">Customer Favorites</span>
+                <h2 class="fw-bold text-dark mb-0">Popular Specialty Pizzas</h2>
+            </div>
+            <a href="{{ url_for('menu.index') }}" class="btn btn-pizza-outline">
+                View Full Menu <i class="bi bi-arrow-right ms-1"></i>
+            </a>
+        </div>
+
+        <div class="row g-4">
+            {% for item in featured_items %}
+            <div class="col-lg-4 col-md-6">
+                <div class="card custom-card h-100">
+                    <img src="{{ item.image_url }}" class="card-img-top-fixed" alt="{{ item.name }}" loading="lazy">
+                    <div class="card-body d-flex flex-column p-4">
+                        <div class="d-flex justify-content-between align-items-start mb-2">
+                            <h5 class="card-title fw-bold mb-0">{{ item.name }}</h5>
+                            <span class="price-tag">${{ "%.2f"|format(item.base_price) }}</span>
+                        </div>
+                        <p class="card-text text-muted small flex-grow-1">{{ item.description }}</p>
+                        <div class="mt-3">
+                            <button class="btn btn-pizza-primary w-100 btn-customize-item" data-item-id="{{ item.id }}">
+                                <i class="bi bi-sliders me-1"></i> Customize & Order
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</section>
+
+<!-- About Section (PB-01: Restaurant Description & Photos) -->
+<section id="about" class="py-5 bg-white border-top border-bottom">
+    <div class="container py-3">
+        <div class="row g-5 align-items-center">
+            <div class="col-lg-6">
+                <span class="text-danger fw-bold text-uppercase small">Our Heritage & Craft</span>
+                <h2 class="display-6 fw-bold mb-3">Poured With Passion, Baked With Love</h2>
+                <p class="text-muted leading-relaxed">
+                    Founded in the heart of Campus Town, <strong>{{ restaurant.name }}</strong> brings generations of authentic Italian pizza craft to our university community.
+                </p>
+                <p class="text-muted leading-relaxed">
+                    We believe the secret to great pizza begins with patience. Every batch of our artisan dough undergoes a 48-hour cold fermentation process, developing complex flavors and a light, digestible crumb. Our sauces are never cooked until they hit the oven, ensuring the sweet, vibrant acidity of whole San Marzano tomatoes shines in every single bite.
+                </p>
+                <div class="row g-3 pt-2">
+                    <div class="col-6">
+                        <div class="border rounded p-3 text-center">
+                            <h4 class="fw-bold text-danger mb-0">100%</h4>
+                            <small class="text-muted">Whole Milk Mozzarella</small>
+                        </div>
+                    </div>
+                    <div class="col-6">
+                        <div class="border rounded p-3 text-center">
+                            <h4 class="fw-bold text-danger mb-0">48 Hr</h4>
+                            <small class="text-muted">Slow Cold Ferment</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-6">
+                <div class="row g-3">
+                    <div class="col-6">
+                        <img src="https://images.unsplash.com/photo-1593560708920-61dd98c46a4e?auto=format&fit=crop&w=600&q=80" alt="Fresh pizza dough and flour" class="img-fluid rounded shadow-sm w-100 mb-3" style="height: 200px; object-fit: cover;">
+                        <img src="https://images.unsplash.com/photo-1574071318508-1cdbab80d002?auto=format&fit=crop&w=600&q=80" alt="Fresh artisan pizza" class="img-fluid rounded shadow-sm w-100" style="height: 220px; object-fit: cover;">
+                    </div>
+                    <div class="col-6 pt-4">
+                        <img src="https://images.unsplash.com/photo-1513104890138-7c749659a591?auto=format&fit=crop&w=600&q=80" alt="Pizza in wood-fired oven" class="img-fluid rounded shadow-sm w-100 mb-3" style="height: 220px; object-fit: cover;">
+                        <img src="https://images.unsplash.com/photo-1541592106381-b31e9677c0e5?auto=format&fit=crop&w=600&q=80" alt="Fresh basil and garlic knots" class="img-fluid rounded shadow-sm w-100" style="height: 200px; object-fit: cover;">
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Hours, Location & Contact Section (PB-01) -->
+<section id="hours-location" class="py-5">
+    <div class="container py-3">
+        <div class="text-center mb-5">
+            <span class="text-danger fw-bold text-uppercase small">Visit or Contact Us</span>
+            <h2 class="fw-bold">Hours, Location & Contact</h2>
+            <p class="text-muted">Conveniently located near campus with dedicated pickup parking.</p>
+        </div>
+
+        <div class="row g-4">
+            <!-- Operating Hours Card -->
+            <div class="col-lg-4 col-md-6">
+                <div class="card border-0 shadow-sm rounded-4 h-100 p-4">
+                    <div class="d-flex align-items-center justify-content-between mb-4">
+                        <div class="d-flex align-items-center">
+                            <div class="bg-warning bg-opacity-10 text-warning p-3 rounded-circle me-3">
+                                <i class="bi bi-clock fs-3"></i>
+                            </div>
+                            <h4 class="fw-bold mb-0">Hours</h4>
+                        </div>
+                        <span class="badge badge-status-open px-3 py-2">Open Today</span>
+                    </div>
+                    <ul class="list-group list-group-flush mb-3">
+                        {% for h in restaurant.hours %}
+                        <li class="list-group-item d-flex justify-content-between align-items-center px-0 py-2 border-light">
+                            <span class="fw-medium text-secondary">{{ h.days }}</span>
+                            <span class="fw-bold text-dark">{{ h.time }}</span>
+                        </li>
+                        {% endfor %}
+                    </ul>
+                    <div class="mt-auto bg-light rounded-3 p-3">
+                        <small class="text-muted d-block"><i class="bi bi-info-circle me-1"></i> Kitchen closes 30 minutes prior to closing time.</small>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Location Card -->
+            <div class="col-lg-4 col-md-6">
+                <div class="card border-0 shadow-sm rounded-4 h-100 p-4">
+                    <div class="d-flex align-items-center mb-4">
+                        <div class="bg-danger bg-opacity-10 text-danger p-3 rounded-circle me-3">
+                            <i class="bi bi-geo-alt fs-3"></i>
+                        </div>
+                        <div>
+                            <h4 class="fw-bold mb-0">Location</h4>
+                            <small class="text-muted">Campus District</small>
+                        </div>
+                    </div>
+                    <p class="fw-medium mb-3 text-dark">
+                        {{ restaurant.address }}
+                    </p>
+                    <div class="ratio ratio-16x9 rounded-3 overflow-hidden mb-3 border">
+                        <iframe 
+                            title="Restaurant Location Map"
+                            src="https://maps.google.com/maps?q=University+Campus&t=&z=13&ie=UTF8&iwloc=&output=embed" 
+                            style="border:0;" 
+                            allowfullscreen="" 
+                            loading="lazy">
+                        </iframe>
+                    </div>
+                    <a href="https://maps.google.com" target="_blank" rel="noopener noreferrer" class="btn btn-outline-secondary btn-sm w-100 mt-auto">
+                        <i class="bi bi-box-arrow-up-right me-1"></i> Get Driving Directions
+                    </a>
+                </div>
+            </div>
+
+            <!-- Contact Information Card -->
+            <div class="col-lg-4 col-md-12">
+                <div class="card border-0 shadow-sm rounded-4 h-100 p-4">
+                    <div class="d-flex align-items-center mb-4">
+                        <div class="bg-success bg-opacity-10 text-success p-3 rounded-circle me-3">
+                            <i class="bi bi-telephone fs-3"></i>
+                        </div>
+                        <div>
+                            <h4 class="fw-bold mb-0">Contact Us</h4>
+                            <small class="text-muted">Direct Line & Support</small>
+                        </div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label class="text-muted small text-uppercase fw-bold mb-1">Phone Number</label>
+                        <div>
+                            <a href="tel:{{ restaurant.phone }}" class="fs-5 fw-bold text-danger text-decoration-none">
+                                <i class="bi bi-telephone-outbound me-2"></i>{{ restaurant.phone }}
+                            </a>
+                        </div>
+                        <small class="text-muted">Call ahead for orders or catering inquiries.</small>
+                    </div>
+
+                    <div class="mb-4">
+                        <label class="text-muted small text-uppercase fw-bold mb-1">Email Support</label>
+                        <div>
+                            <a href="mailto:{{ restaurant.email }}" class="text-dark fw-medium text-decoration-none">
+                                <i class="bi bi-envelope me-2"></i>{{ restaurant.email }}
+                            </a>
+                        </div>
+                    </div>
+
+                    <div class="mt-auto pt-3 border-top">
+                        <a href="{{ url_for('menu.index') }}" class="btn btn-pizza-primary w-100 py-2">
+                            <i class="bi bi-bag-check me-2"></i> Start Your Order Now
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Item Customization Modal Placeholder -->
+{% include "partials/_modal_customize.html" %}
+
+{% endblock %}
