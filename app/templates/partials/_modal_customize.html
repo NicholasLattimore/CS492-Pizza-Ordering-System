@@ -1,0 +1,66 @@
+<!-- Item Customization & Add to Cart Modal -->
+<div class="modal fade" id="customizeModal" tabindex="-1" aria-labelledby="customizeModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content rounded-4 border-0 shadow">
+            <div class="modal-header border-bottom-0 pb-0">
+                <h4 class="modal-title fw-bold" id="modal-item-name">Customize Item</h4>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form id="customize-form" action="{{ url_for('cart.add_to_cart') }}" method="POST">
+                <div class="modal-body pt-2">
+                    <input type="hidden" name="menu_item_id" id="modal-item-id">
+                    
+                    <p class="text-muted small mb-4" id="modal-item-desc"></p>
+
+                    <!-- Sizes Section -->
+                    <div id="modal-sizes-section" class="mb-4">
+                        <label class="form-label fw-bold text-dark mb-2">
+                            <i class="bi bi-aspect-ratio me-1 text-danger"></i> Choose Size
+                        </label>
+                        <div id="modal-sizes-container" class="d-flex flex-wrap gap-2">
+                            <!-- Populated dynamically via JS -->
+                        </div>
+                    </div>
+
+                    <!-- Crust Section -->
+                    <div id="modal-crusts-section" class="mb-4">
+                        <label class="form-label fw-bold text-dark mb-2">
+                            <i class="bi bi-pie-chart me-1 text-danger"></i> Select Crust Style
+                        </label>
+                        <div id="modal-crusts-container">
+                            <!-- Populated dynamically via JS -->
+                        </div>
+                    </div>
+
+                    <!-- Special Notes Section -->
+                    <div class="mb-4">
+                        <label for="modal-notes" class="form-label fw-bold text-dark mb-1">
+                            <i class="bi bi-chat-left-dots me-1 text-danger"></i> Special Instructions (Optional)
+                        </label>
+                        <textarea class="form-control" name="special_notes" id="modal-notes" rows="2" placeholder="e.g. Well done crust, light cheese, sauce on the side..."></textarea>
+                    </div>
+
+                    <!-- Quantity Section -->
+                    <div class="d-flex align-items-center justify-content-between p-3 bg-light rounded-3">
+                        <span class="fw-bold text-dark">Quantity</span>
+                        <div class="d-flex align-items-center gap-2">
+                            <button type="button" class="btn btn-outline-secondary qty-btn" id="modal-qty-minus">-</button>
+                            <input type="number" name="quantity" id="modal-quantity" class="form-control text-center fw-bold" value="1" min="1" max="50" style="width: 60px;">
+                            <button type="button" class="btn btn-outline-secondary qty-btn" id="modal-qty-plus">+</button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="modal-footer border-top-0 pt-0 pb-3 d-flex justify-content-between">
+                    <div>
+                        <small class="text-muted d-block">Total Price</small>
+                        <span class="fs-4 fw-bold text-danger" id="modal-unit-price">$0.00</span>
+                    </div>
+                    <button type="submit" class="btn btn-pizza-primary px-4 py-2">
+                        <i class="bi bi-cart-plus me-1"></i> Add to Cart
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>

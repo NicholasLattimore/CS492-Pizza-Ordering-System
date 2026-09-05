@@ -1,0 +1,166 @@
+{% extends "base.html" %}
+
+{% block title %}Restaurant Staff - Orders Dashboard{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-4 px-md-5">
+    <!-- Header -->
+    <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-3">
+        <div>
+            <div class="d-flex align-items-center gap-2">
+                <span class="badge bg-danger">Staff Portal</span>
+                <span class="badge bg-secondary">Sprint 1 Acceptance Criteria (PB-05)</span>
+            </div>
+            <h1 class="fw-bold text-dark mt-1 mb-0">Incoming Orders Dashboard</h1>
+            <p class="text-muted mb-0">Live monitoring of customer submitted orders and kitchen preparation status.</p>
+        </div>
+        <div>
+            <a href="{{ url_for('staff.orders') }}" class="btn btn-outline-secondary btn-sm">
+                <i class="bi bi-arrow-clockwise me-1"></i> Refresh Live Orders
+            </a>
+        </div>
+    </div>
+
+    <!-- Status Filters & Metric Counters -->
+    <div class="row g-3 mb-4">
+        <div class="col-6 col-md-2">
+            <a href="{{ url_for('staff.orders', status='all') }}" class="card text-decoration-none border-0 shadow-sm rounded-3 text-center p-3 {% if current_filter == 'all' %}bg-dark text-white{% else %}bg-white text-dark{% endif %}">
+                <small class="text-uppercase fw-bold opacity-75">All</small>
+                <div class="fs-3 fw-bold">{{ counts.all }}</div>
+            </a>
+        </div>
+        <div class="col-6 col-md-2">
+            <a href="{{ url_for('staff.orders', status='Received') }}" class="card text-decoration-none border-0 shadow-sm rounded-3 text-center p-3 {% if current_filter == 'Received' %}bg-primary text-white{% else %}bg-white text-dark{% endif %}">
+                <small class="text-uppercase fw-bold opacity-75">Received</small>
+                <div class="fs-3 fw-bold text-primary {% if current_filter == 'Received' %}text-white{% endif %}">{{ counts.Received }}</div>
+            </a>
+        </div>
+        <div class="col-6 col-md-2">
+            <a href="{{ url_for('staff.orders', status='Preparing') }}" class="card text-decoration-none border-0 shadow-sm rounded-3 text-center p-3 {% if current_filter == 'Preparing' %}bg-warning text-dark{% else %}bg-white text-dark{% endif %}">
+                <small class="text-uppercase fw-bold opacity-75">Preparing</small>
+                <div class="fs-3 fw-bold text-warning {% if current_filter == 'Preparing' %}text-dark{% endif %}">{{ counts.Preparing }}</div>
+            </a>
+        </div>
+        <div class="col-6 col-md-2">
+            <a href="{{ url_for('staff.orders', status='Ready') }}" class="card text-decoration-none border-0 shadow-sm rounded-3 text-center p-3 {% if current_filter == 'Ready' %}bg-info text-white{% else %}bg-white text-dark{% endif %}">
+                <small class="text-uppercase fw-bold opacity-75">Ready</small>
+                <div class="fs-3 fw-bold text-info {% if current_filter == 'Ready' %}text-white{% endif %}">{{ counts.Ready }}</div>
+            </a>
+        </div>
+        <div class="col-6 col-md-2">
+            <a href="{{ url_for('staff.orders', status='Completed') }}" class="card text-decoration-none border-0 shadow-sm rounded-3 text-center p-3 {% if current_filter == 'Completed' %}bg-success text-white{% else %}bg-white text-dark{% endif %}">
+                <small class="text-uppercase fw-bold opacity-75">Completed</small>
+                <div class="fs-3 fw-bold text-success {% if current_filter == 'Completed' %}text-white{% endif %}">{{ counts.Completed }}</div>
+            </a>
+        </div>
+    </div>
+
+    <!-- Orders Table -->
+    <div class="card border-0 shadow-sm rounded-4 overflow-hidden">
+        <div class="card-body p-0">
+            {% if not orders %}
+            <div class="text-center py-5 text-muted">
+                <i class="bi bi-inbox fs-1 d-block mb-2 text-secondary"></i>
+                <h5 class="fw-bold">No orders found for this status</h5>
+                <p class="small">New submitted orders will appear here automatically.</p>
+            </div>
+            {% else %}
+            <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0">
+                    <thead class="table-light">
+                        <tr>
+                            <th class="ps-4 py-3">Order # / Time</th>
+                            <th class="py-3">Customer</th>
+                            <th class="py-3">Type</th>
+                            <th class="py-3" style="min-width: 250px;">Items Ordered</th>
+                            <th class="py-3">Total</th>
+                            <th class="py-3">Status</th>
+                            <th class="py-3 text-end pe-4">Change Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for ord in orders %}
+                        <tr>
+                            <td class="ps-4 py-3">
+                                <span class="fw-bold text-danger d-block">{{ ord.order_number }}</span>
+                                <small class="text-muted">{{ ord.created_at.strftime('%b %d, %I:%M %p') }}</small>
+                            </td>
+                            <td>
+                                <div class="fw-bold text-dark">{{ ord.customer_name }}</div>
+                                <div class="small text-muted"><i class="bi bi-telephone me-1"></i>{{ ord.customer_phone }}</div>
+                                <div class="small text-muted"><i class="bi bi-envelope me-1"></i>{{ ord.customer_email }}</div>
+                            </td>
+                            <td>
+                                {% if ord.order_type == 'delivery' %}
+                                    <span class="badge bg-warning bg-opacity-25 text-dark border border-warning">
+                                        <i class="bi bi-bicycle me-1"></i> Delivery
+                                    </span>
+                                    {% if ord.delivery_address %}
+                                    <div class="small text-muted mt-1" style="max-width: 200px;">
+                                        {{ ord.delivery_address }}
+                                    </div>
+                                    {% endif %}
+                                {% else %}
+                                    <span class="badge bg-success bg-opacity-25 text-success border border-success">
+                                        <i class="bi bi-shop me-1"></i> Pickup
+                                    </span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                <ul class="list-unstyled mb-0 small">
+                                    {% for itm in ord.items %}
+                                    <li class="mb-1">
+                                        <strong>{{ itm.quantity }}x</strong> {{ itm.item_name }}
+                                        {% if itm.size_option or itm.crust_option %}
+                                            <span class="text-muted">({{ itm.size_option }}{% if itm.size_option and itm.crust_option %}, {% endif %}{{ itm.crust_option }})</span>
+                                        {% endif %}
+                                        {% if itm.special_notes %}
+                                            <div class="text-muted fst-italic ms-3">Note: {{ itm.special_notes }}</div>
+                                        {% endif %}
+                                    </li>
+                                    {% endfor %}
+                                </ul>
+                                {% if ord.special_instructions %}
+                                <div class="small text-danger bg-danger bg-opacity-10 p-1 rounded mt-1">
+                                    <strong>Notes:</strong> {{ ord.special_instructions }}
+                                </div>
+                                {% endif %}
+                            </td>
+                            <td>
+                                <span class="fw-bold fs-6 text-dark">${{ "%.2f"|format(ord.total_amount) }}</span>
+                            </td>
+                            <td>
+                                {% if ord.status == 'Received' %}
+                                    <span class="badge bg-primary px-2 py-1">Received</span>
+                                {% elif ord.status == 'Preparing' %}
+                                    <span class="badge bg-warning text-dark px-2 py-1">Preparing</span>
+                                {% elif ord.status == 'Ready' %}
+                                    <span class="badge bg-info text-white px-2 py-1">Ready</span>
+                                {% elif ord.status == 'Completed' %}
+                                    <span class="badge bg-success px-2 py-1">Completed</span>
+                                {% else %}
+                                    <span class="badge bg-secondary px-2 py-1">{{ ord.status }}</span>
+                                {% endif %}
+                            </td>
+                            <td class="text-end pe-4">
+                                <form action="{{ url_for('staff.update_status', order_id=ord.id) }}" method="POST" class="d-inline-flex gap-1">
+                                    <input type="hidden" name="current_filter" value="{{ current_filter }}">
+                                    <select name="status" class="form-select form-select-sm" style="width: 120px;" onchange="this.form.submit()">
+                                        <option value="Received" {% if ord.status == 'Received' %}selected{% endif %}>Received</option>
+                                        <option value="Preparing" {% if ord.status == 'Preparing' %}selected{% endif %}>Preparing</option>
+                                        <option value="Ready" {% if ord.status == 'Ready' %}selected{% endif %}>Ready</option>
+                                        <option value="Completed" {% if ord.status == 'Completed' %}selected{% endif %}>Completed</option>
+                                        <option value="Cancelled" {% if ord.status == 'Cancelled' %}selected{% endif %}>Cancelled</option>
+                                    </select>
+                                </form>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}
