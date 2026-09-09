@@ -187,3 +187,20 @@ def test_pb05_customer_order_submission_and_confirmation(client):
     }, follow_redirects=True)
     assert status_update.status_code == 200
     assert saved_order.status == 'Preparing'
+
+def test_t1_06_responsive_layout_review(client):
+    """T1-06 (PB-10): Review Sprint 1 pages for responsive layout (mobile, tablet, desktop)."""
+    endpoints = ['/', '/menu/', '/cart/', '/staff/orders']
+    for ep in endpoints:
+        res = client.get(ep)
+        assert res.status_code == 200
+        html = res.data.decode('utf-8')
+        # Viewport meta tag for mobile scaling
+        assert 'name="viewport"' in html
+        assert 'width=device-width' in html
+        # Responsive navbar toggle for mobile screens
+        assert 'navbar-toggler' in html
+        # Responsive Bootstrap grid system
+        assert 'container' in html
+        assert 'col-' in html or 'col-md-' in html or 'col-lg-' in html
+
