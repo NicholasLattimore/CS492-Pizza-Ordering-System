@@ -5,6 +5,7 @@ CS492 Capstone - Pizza Restaurant Online Ordering System
 ## Pizza Restaurant Online Ordering System
 **Course:** CS492 Computer Science Capstone  
 **Instructor:** Prof. Fadi Almasri  
+**Sprint 1 Start Date:** 08/31/2026  
 
 ---
 
@@ -13,11 +14,11 @@ A responsive web application designed for a local pizzeria, supporting customer 
 
 ---
 
-## Active Team Members
-- **Michael Fabacher** - Product Owner
-- **Kellen Jones** - Scrum Master
-- **Ayden Lotter** - Development Team
-- **Nicholas Lattimore** - Development Team
+## Active Team Members & Roles
+- **Michael Fabacher** — Product Owner *(Sprint 1 Task Owner: T1-05)*
+- **Kellen Jones** — Scrum Master & Development Team *(Sprint 1 Task Owner: T1-03; Sprint 2 Task Owner: T2-06)*
+- **Ayden Lotter** — Development Team *(Sprint 1 Task Owner: T1-01 & T1-06)*
+- **Nicholas Lattimore** — Development Team *(Sprint 1 Task Owner: T1-02 & T1-04)*
 
 ---
 
@@ -31,15 +32,19 @@ A responsive web application designed for a local pizzeria, supporting customer 
 
 ---
 
-## Sprint 1 Deliverables (Completed)
+## Sprint 1 Task Tracking & Deliverables
 
-| Story ID | Title | Description | Status |
-| :--- | :--- | :--- | :--- |
-| **PB-01** | Restaurant Information and Home Page | Restaurant description, food photos, operating hours, campus location map, and contact info with responsive design. | ✅ Done |
-| **PB-02** | Menu Browsing and Item Details | Grouped by category (Specialty Pizzas, Build Your Own, Appetizers, Beverages, Desserts). Shows descriptions, prices, size/crust options, and marked unavailable items. No login required. | ✅ Done |
-| **PB-03** | Order Builder and Shopping Cart | Add items with customized size/crust/notes to cart, modify quantities (`+`/`-`), remove items, live cart summary, and clean empty-cart guidance. | ✅ Done |
-| **PB-04** | Final Bill Calculation and Order Review | Itemized review displaying line totals, subtotal, sales tax (8.25%), fulfillment option (Pickup vs $4.99 Delivery), and final total. Disallows submitting empty carts. | ✅ Done |
-| **PB-05** | Customer Order Submission and Confirmation | Input validation, unique order number generation (`#ORD-...`), database order record creation, customer receipt screen, and restaurant staff order dashboard (`/staff/orders`). | ✅ Done |
+*Based on the formal Sprint 1 Tracking Sheet (Start Date: 08/31/2026, Total Estimate: 62 units/hours).*
+
+| Task ID | Story ID | Description | Assigned Owner | Estimate | Implementation Deliverables | Status |
+| :---: | :---: | :--- | :--- | :---: | :--- | :---: |
+| **T1-01** | **PB-01** | Create restaurant home page content and layout | **Ayden Lotter** | 8 hrs | Landing page with hero banner, artisan pizza heritage story, food photography, operating hours with live status badge, campus location map embed, and direct contact details (`app/routes/main.py`, `app/templates/index.html`). | ✅ Done |
+| **T1-02** | **PB-02** | Build menu categories, item display, descriptions, and prices | **Nicholas Lattimore** | 12 hrs | Grouped menu categories (Specialty Pizzas, Build Your Own, Appetizers & Sides, Beverages, Desserts) with item descriptions, prices, size/crust options, and marked unavailable items without requiring login (`app/routes/menu.py`, `app/templates/menu.html`). | ✅ Done |
+| **T1-03** | **PB-03** | Create cart functions for add, remove, and quantity changes | **Kellen Jones** | 14 hrs | Session-based cart persistence, pizza customization modal (sizes & crusts), quantity modification (`+`/`-`), line item removal, clear-cart confirmation, and clear empty-cart behavior (`app/routes/cart.py`, `app/templates/cart.html`, `app/static/js/cart.js`). | ✅ Done |
+| **T1-04** | **PB-04** | Create bill calculation and order review screen | **Nicholas Lattimore** | 10 hrs | Itemized checkout bill review displaying line totals, subtotal, 8.25% sales tax calculation, dynamic fulfillment toggle (In-Store Pickup $0.00 vs Local Delivery $4.99), and empty order prevention (`app/routes/cart.py`, `app/templates/checkout.html`). | ✅ Done |
+| **T1-05** | **PB-05** | Create order submission and confirmation flow | **Michael Fabacher** | 10 hrs | Customer details validation (name, email, phone, delivery address), unique order number generation (`#ORD-YYYYMMDD-XXXX`), SQLite database storage, printable confirmation receipt, and live staff order dashboard (`app/routes/order.py`, `app/routes/staff.py`, `app/templates/confirmation.html`, `app/templates/staff/orders.html`). | ✅ Done |
+| **T1-06** | **PB-10** | Review Sprint 1 pages for responsive layout | **Ayden Lotter** | 8 hrs | Mobile, tablet, and desktop layout audits ensuring seamless responsiveness, collapsible navigation, accessible touch targets, and flexible grid containers across all views (`app/static/css/style.css`, `app/templates/base.html`). | ✅ Done |
+| **Total** | | | | **62 hrs** | | **100% Complete** |
 
 ---
 
@@ -77,6 +82,7 @@ Open your browser and navigate to `http://localhost:5000`. The database automati
 ```bash
 pytest
 ```
+*Executes all 6 test suites verifying tasks T1-01 through T1-06.*
 
 ---
 
@@ -87,7 +93,7 @@ This repository contains everything required for zero-configuration 1-click depl
 1. Push this repository to GitHub:
    ```bash
    git add .
-   git commit -m "Sprint 1 delivery: PB-01 through PB-05"
+   git commit -m "Sprint 1 delivery: tasks T1-01 through T1-06"
    git push origin main
    ```
 2. Log into [Render.com](https://render.com) and click **New +** -> **Web Service**.
