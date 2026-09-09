@@ -3,9 +3,21 @@ from app.models import db, MenuItem
 
 cart_bp = Blueprint('cart', __name__)
 
+# Task T1-03: Cart Functions & Quantities
+# Module Lead & Author: Kellen Jones (Scrum Master & Development Team)
+# Description: Manages shopping cart session lifecycle, defensive quantity boundaries,
+# input sanitization, and payload footprint optimization for client cookie storage.
+
+MAX_ITEM_QUANTITY = 50       # Server-side safety cap per item to prevent order overflow
+MAX_NOTES_LENGTH = 200       # Input length boundary to preserve 4KB session cookie limit
+
 def get_cart():
-    """Retrieve or initialize the shopping cart in session."""
-    if 'cart' not in session:
+    """Retrieve or initialize the shopping cart in session.
+    
+    Guarantees a clean, validated list structure in the user session to
+    prevent schema drift or null pointer exceptions during checkout flow.
+    """
+    if 'cart' not in session or not isinstance(session['cart'], list):
         session['cart'] = []
     return session['cart']
 
@@ -34,9 +46,15 @@ def index():
 
 @cart_bp.route('/add', methods=['POST'])
 def add_to_cart():
+    """Add a configured menu item to the user's shopping cart session.
+    
+    Implements defensive input sanitization, dynamic options price calculation,
+    duplicate configuration merging, and payload weight optimization.
+    """
     menu_item_id = request.form.get('menu_item_id', type=int)
     item = db.get_or_404(MenuItem, menu_item_id)
 
+    # Acceptance Criteria Check: Disallow adding sold out items
     if not item.is_available:
         if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
             return jsonify({'success': False, 'message': 'This item is currently sold out.'}), 400
@@ -45,10 +63,16 @@ def add_to_cart():
 
     size_name = request.form.get('size_option', '').strip()
     crust_name = request.form.get('crust_option', '').strip()
-    special_notes = request.form.get('special_notes', '').strip()
-    quantity = max(1, request.form.get('quantity', 1, type=int))
+    
+    # Defensive Input Sanitization: strip whitespace and enforce length boundary
+    raw_notes = request.form.get('special_notes', '') or ''
+    special_notes = raw_notes.strip()[:MAX_NOTES_LENGTH]
+    
+    # Defensive Quantity Clamping: force quantity within [1, MAX_ITEM_QUANTITY]
+    raw_qty = request.form.get('quantity', 1, type=int)
+    quantity = max(1, min(raw_qty if raw_qty is not None else 1, MAX_ITEM_QUANTITY))
 
-    # Calculate unit price based on options
+    # Calculate unit price based on selected size and crust modifiers
     unit_price = item.base_price
     options = item.get_options()
 
@@ -79,13 +103,17 @@ def add_to_cart():
             break
 
     if existing_index is not None:
-        cart[existing_index]['quantity'] += quantity
-        cart[existing_index]['line_total'] = round(cart[existing_index]['quantity'] * unit_price, 2)
+        # Combine quantities up to MAX_ITEM_QUANTITY ceiling
+        combined_qty = min(cart[existing_index]['quantity'] + quantity, MAX_ITEM_QUANTITY)
+        cart[existing_index]['quantity'] = combined_qty
+        cart[existing_index]['line_total'] = round(combined_qty * unit_price, 2)
     else:
+        # Architectural Session Optimization:
+        # Omitted verbose item description strings from session cookie dictionary.
+        # This keeps the cookie lightweight and well under browser 4KB thresholds.
         cart.append({
             'menu_item_id': item.id,
             'name': item.name,
-            'description': item.description,
             'image_url': item.image_url,
             'size_option': size_name or None,
             'crust_option': crust_name or None,
@@ -112,18 +140,22 @@ def add_to_cart():
 
 @cart_bp.route('/update', methods=['POST'])
 def update_item():
+    """Modify item quantities or remove selections with boundary checks."""
     index = request.form.get('index', type=int)
     action = request.form.get('action')  # 'increase', 'decrease', or 'set'
     cart = get_cart()
 
     if index is not None and 0 <= index < len(cart):
         if action == 'increase':
-            cart[index]['quantity'] += 1
+            cart[index]['quantity'] = min(cart[index]['quantity'] + 1, MAX_ITEM_QUANTITY)
         elif action == 'decrease':
             cart[index]['quantity'] -= 1
         elif action == 'set':
             new_qty = request.form.get('quantity', 1, type=int)
-            cart[index]['quantity'] = new_qty
+            if new_qty is None or new_qty <= 0:
+                cart[index]['quantity'] = 0
+            else:
+                cart[index]['quantity'] = min(new_qty, MAX_ITEM_QUANTITY)
 
         if cart[index]['quantity'] <= 0:
             removed_name = cart[index]['name']
